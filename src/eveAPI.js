@@ -1,6 +1,5 @@
 import axios from 'axios'
 import Swagger from 'swagger-client'
-import xml2js from 'xml2js-es6-promise'
 
 
 const oauthURLBase = 'https://login.eveonline.com/oauth/'
@@ -11,7 +10,7 @@ const getAuthorizationURL = (id, redirectURL, scope) => {
     `&client_id=${id}&scope=${scope}`
 }
 
-const getHeaders = (id, secret) => {
+const getBasicHeader = (id, secret) => {
   const Authorization = 'Basic ' + new Buffer(`${id}:${secret}`)
     .toString('base64')
     .replace('\n', '')
@@ -19,12 +18,16 @@ const getHeaders = (id, secret) => {
   return { Authorization }
 }
 
+const getBearerHeader = (token) => {
+  return { Authorization: `Bearer ${token}` }
+}
+
 const authenticate = (id, secret, code) => {
   const data = {
     grant_type: 'authorization_code',
     code
   }
-  const headers = getHeaders(id, secret)
+  const headers = getBasicHeader(id, secret)
   return axios.post(`${oauthURLBase}token`, data, { headers })
     .then(response => response.data.access_token)
 }
@@ -66,24 +69,30 @@ const getCharacterId = async (name) => {
   return response.obj.character[0]
 }
 
-const getAPIKeyInfo = async (keyID, vCode) => {
-  const response = await axios.get(`https://api.eveonline.com/account/APIKeyInfo.xml.aspx?keyID=${keyID}&vCode=${vCode}`)
-  const xmlData = await xml2js(response.data)
-  const { accessMask, type } = xmlData.eveapi.result[0].key[0].$
-  const characters = xmlData.eveapi.result[0].key[0].rowset[0].row.map(e => e.$)
-  return { accessMask, type, characters }
+const getSkills = async (characterId, id, secret, token) => {
+  const authorization = getBearerHeader(token)
+  const client = await new Swagger({
+    url: 'https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility',
+    usePromise: true,
+    authorizations: {
+      evesso: new Swagger.ApiKeyAuthorization('Authorization', authorization.Authorization, 'header')
+    }
+  })
+  const response = await client.Skills.get_characters_character_id_skills({
+    character_id: characterId
+  })
+  return response.obj
 }
-
 
 const api = {
   getAuthorizationURL,
-  getHeaders,
   authenticate,
   whoami,
   getCorporation,
   isCorpInAlliance,
   getCharacterId,
-  getAPIKeyInfo
+  getSkills
 }
+
 
 export default api

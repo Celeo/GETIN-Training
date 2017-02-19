@@ -1,0 +1,16 @@
+{
+  "EVE_SSO": {
+    "DEV": {
+      "client_id": "",
+      "secret_key": "",
+      "callback_url": "",
+      "scope": "esi-skills.read_skills.v1+esi-skills.read_skillqueue.v1"
+    },
+    "PROD": {
+      "client_id": "",
+      "secret_key": "",
+      "callback_url": "",
+      "scope": "esi-skills.read_skills.v1+esi-skills.read_skillqueue.v1"
+    }
+  }
+}
