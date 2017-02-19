@@ -14,7 +14,7 @@ const retrieve = async () => {
       skills[groupItem.$.typeID] = groupItem.$.typeName
     }
   }
-  fs.writeFile('skill_mapping.json', JSON.stringify(skills, null, 2), () => {})
+  fs.writeFile('skillMapping.json', JSON.stringify(skills, null, 2), () => {})
 }
 
 retrieve()

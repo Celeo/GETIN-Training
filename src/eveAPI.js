@@ -1,5 +1,6 @@
 import axios from 'axios'
 import Swagger from 'swagger-client'
+import skillMapping from './skillMapping.json'
 
 
 const oauthURLBase = 'https://login.eveonline.com/oauth/'
@@ -81,7 +82,15 @@ const getSkills = async (characterId, id, secret, token) => {
   const response = await client.Skills.get_characters_character_id_skills({
     character_id: characterId
   })
-  return response.obj
+  const skills = {}
+  let skillName
+  let skillLevel
+  for (let skill of response.obj.skills) {
+    skillName = skillMapping[skill.skill_id]
+    skillLevel = skill.current_skill_level
+    skills[skillName] = skillLevel
+  }
+  return skills
 }
 
 const api = {
