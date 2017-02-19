@@ -1,0 +1,7 @@
+{
+  "ignore": [
+    ".git",
+    "*.db-journal",
+    "node_modules"
+  ]
+}
